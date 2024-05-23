@@ -13,17 +13,16 @@ public class RentifyApplication {
 		SpringApplication.run(RentifyApplication.class, args);
 	}
 	
-//	@Bean
-//    public WebMvcConfigurer corsConfigurer() {
-//        return new WebMvcConfigurer() {
-//            @Override
-//            public void addCorsMappings(CorsRegistry registry) {
-//                registry.addMapping("/**")
-//                        .allowedOriginPatterns("*")
-//                        .allowedMethods("*")
-//                        .allowCredentials(true);
-//            }
-//        };
-//    }
+	@Bean
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                registry.addMapping("/**")
+                        .allowedMethods("*")
+						.allowedOrigins("http://localhost:3000");
+            }
+        };
+    }
 
 }
