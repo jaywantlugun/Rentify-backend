@@ -24,39 +24,36 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                .and()
-                .authorizeHttpRequests(authorize -> authorize.requestMatchers("/api/**").authenticated().anyRequest().permitAll())
-                .addFilterBefore(new JwtValidator(), BasicAuthenticationFilter.class)
-                .csrf().disable()
-                .cors()
-                .configurationSource(new CorsConfigurationSource() {
-                    @Override
-                    public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
-
-                        CorsConfiguration cfg = new CorsConfiguration();
-                        cfg.setAllowedOrigins(Arrays.asList(
-                                "http://localhost:3000"
-                        ));
-                        cfg.setAllowedMethods(Collections.singletonList("*"));
-                        cfg.setAllowCredentials(true);
-                        cfg.setAllowedHeaders(Collections.singletonList("*"));
-                        cfg.setExposedHeaders(Arrays.asList("Authorization"));
-                        cfg.setMaxAge(3600L);
-                        return cfg;
-                    }
-
+        http.cors(cors -> {
+                    CorsConfigurationSource corsConfigurationSource = new CorsConfigurationSource() {
+                        @Override
+                        public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
+                            CorsConfiguration cfg = new CorsConfiguration();
+                            cfg.setAllowedOrigins(Arrays.asList("http://localhost:3000"));
+                            cfg.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                            cfg.setAllowCredentials(true);
+                            cfg.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
+                            cfg.setExposedHeaders(Arrays.asList("Authorization"));
+                            cfg.setMaxAge(3600L);
+                            return cfg;
+                        }
+                    };
+                    cors.configurationSource(corsConfigurationSource);
                 })
-                .and().httpBasic().and().formLogin();
+                .csrf().disable()
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .and()
+                .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers("/api/**").authenticated()
+                        .anyRequest().permitAll())
+                .addFilterBefore(new JwtValidator(), BasicAuthenticationFilter.class)
+                .httpBasic().and().formLogin();
 
         return http.build();
-
     }
 
-
-	@Bean
-	public PasswordEncoder passwordEncoder() {
-		return new BCryptPasswordEncoder();
-	}
-
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 }
