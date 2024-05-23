@@ -37,6 +37,7 @@ public class AppController {
     @Autowired
     private CustomUserServiceImplementation customUserServiceImplementation;
 
+    @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/signup")
     public ResponseEntity<AuthResponse> createUserHandler(@Valid @RequestBody User user) throws UserException {
         String email = user.getEmail();
