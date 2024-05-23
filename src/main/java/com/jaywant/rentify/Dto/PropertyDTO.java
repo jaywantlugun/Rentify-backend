@@ -91,7 +91,7 @@ public class PropertyDTO {
         this.propertyImage = propertyImage;
     }
 
-    public User getOwnerId() {
+    public User getOwner() {
         return owner;
     }
 
