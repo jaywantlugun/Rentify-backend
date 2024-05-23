@@ -1,64 +1,26 @@
-package com.jaywant.rentify.models;
+package com.jaywant.rentify.Dto;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotNull;
+import com.jaywant.rentify.models.User;
 
-import java.sql.Blob;
-import java.util.HashSet;
 import java.util.Set;
 
-@Entity
-public class Property {
+public class PropertyDTO {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
-    @NotNull
-    @Column(name = "rent", nullable = false)
     private Integer rent;
-
-    @NotNull
-    @Column(name = "area", nullable = false)
     private String area;
-
-    @NotNull
-    @Column(name = "bedrooms", nullable = false)
     private Integer bedrooms;
-
-    @NotNull
-    @Column(name = "bathrooms", nullable = false)
     private Integer bathrooms;
-
-    @NotNull
-    @Column(name = "nearby_spots")
     private String nearbySpots;
-
-    @NotNull
-    @Column(name = "property_image")
-    Blob propertyImage;
-
-    
-    @ManyToOne
-    @JoinColumn(name = "owner_id")
+    private String propertyImage;
     private User owner;
+    private Set<Integer> appliedUsers;
+    private Set<Integer> likedUsers;
 
-    @ElementCollection
-    @CollectionTable(name = "property_applications", joinColumns = @JoinColumn(name = "property_id"))
-    @Column(name = "user_id")
-    private Set<Integer> appliedUsers = new HashSet<>();
-
-    @ElementCollection
-    @CollectionTable(name = "property_likes", joinColumns = @JoinColumn(name = "property_id"))
-    @Column(name = "user_id")
-    private Set<Integer> likedUsers = new HashSet<>();
-
-    public Property() {
+    public PropertyDTO() {
     }
 
-    public Property(Integer id, Integer rent, String area, Integer bedrooms, Integer bathrooms, String nearbySpots, Blob propertyImage, User owner) {
-        super();
+    public PropertyDTO(Integer id, Integer rent, String area, Integer bedrooms, Integer bathrooms, String nearbySpots, String propertyImage, User owner, Set<Integer> appliedUsers, Set<Integer> likedUsers) {
         this.id = id;
         this.rent = rent;
         this.area = area;
@@ -67,9 +29,11 @@ public class Property {
         this.nearbySpots = nearbySpots;
         this.propertyImage = propertyImage;
         this.owner = owner;
+        this.appliedUsers = appliedUsers;
+        this.likedUsers = likedUsers;
     }
 
-    // getters and setters for all fields, including imageUrl, appliedUsers, and likedUsers
+    // Getters and Setters
 
     public Integer getId() {
         return id;
@@ -119,15 +83,15 @@ public class Property {
         this.nearbySpots = nearbySpots;
     }
 
-    public @NotNull Blob getPropertyImage() {
+    public String getPropertyImage() {
         return propertyImage;
     }
 
-    public void setPropertyImage(@NotNull Blob propertyImage) {
+    public void setPropertyImage(String propertyImage) {
         this.propertyImage = propertyImage;
     }
 
-    public User getOwner() {
+    public User getOwnerId() {
         return owner;
     }
 
@@ -151,3 +115,4 @@ public class Property {
         this.likedUsers = likedUsers;
     }
 }
+

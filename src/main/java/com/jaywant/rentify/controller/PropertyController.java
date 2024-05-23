@@ -1,11 +1,13 @@
 package com.jaywant.rentify.controller;
 
+import com.jaywant.rentify.Dto.PropertyDTO;
 import com.jaywant.rentify.models.Property;
 import com.jaywant.rentify.models.User;
 import com.jaywant.rentify.repository.PropertyRepository;
 import com.jaywant.rentify.repository.UserRepository;
 import com.jaywant.rentify.response.PropertyPaginatedResponse;
 
+import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -22,6 +24,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.core.io.ClassPathResource;
 
+import javax.sql.rowset.serial.SerialBlob;
+import javax.sql.rowset.serial.SerialException;
 import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
@@ -29,19 +33,17 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.sql.Blob;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@CrossOrigin("http://localhost:3000")
 @RestController
 @RequestMapping("/properties")
 public class PropertyController {
-
-	private final String UPLOAD_DIR = new ClassPathResource("static/images/").getFile().getAbsolutePath();
-
-	public PropertyController() throws IOException
-	{}
-	
 
     @Autowired
     private PropertyRepository propertyRepository;
@@ -58,22 +60,7 @@ public class PropertyController {
                                                 @RequestParam("ownerId") Integer ownerId,
                                                 @RequestParam("file") MultipartFile file) {
         try {
-            // Ensure directory exists
-            Path uploadPath = Paths.get(UPLOAD_DIR);
-            if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
-            }
-            
-         // Generate a new unique file name
-            String originalFileName = file.getOriginalFilename();
-            String fileExtension = originalFileName.substring(originalFileName.lastIndexOf('.'));
-            String newFileName = UUID.randomUUID().toString() + fileExtension;
-           
-         // Get the path to the destination file
-            Path destinationPath = Paths.get(UPLOAD_DIR, newFileName);
 
-            // Copy the file to the destination
-            Files.copy(file.getInputStream(), destinationPath, StandardCopyOption.REPLACE_EXISTING);
 
             // Create property object
             Property property = new Property();
@@ -82,7 +69,11 @@ public class PropertyController {
             property.setBedrooms(bedrooms);
             property.setBathrooms(bathrooms);
             property.setNearbySpots(nearbySpots);
-            property.setImageUrl(ServletUriComponentsBuilder.fromCurrentContextPath().path("/images/").path(newFileName).toUriString());
+
+            byte[] photoBytes = file.getBytes();
+            Blob photoBlob = new SerialBlob(photoBytes);
+            property.setPropertyImage(photoBlob);
+
             // Assume you have a UserRepository to fetch the owner
             User owner = userRepository.findById(ownerId).orElse(null);
             property.setOwner(owner);
@@ -93,6 +84,8 @@ public class PropertyController {
         } catch (IOException e) {
             e.printStackTrace();
             return ResponseEntity.status(500).body(null);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
         }
     }
     
@@ -125,7 +118,7 @@ public class PropertyController {
     public ResponseEntity<PropertyPaginatedResponse> getAllProperties(
             @RequestParam(value = "pageNo", defaultValue = "0", required = false) Integer pageNo,
             @RequestParam(value = "sortBy", defaultValue = "id", required = false) String sortBy
-    ) {
+    ) throws SQLException {
         Pageable pageable = PageRequest.of(pageNo, 2);
 
         Page<Property> propertiesPage;
@@ -139,38 +132,63 @@ public class PropertyController {
 
         List<Property> properties = propertiesPage.getContent();
         Integer totalPages = propertiesPage.getTotalPages();
+
+        List<PropertyDTO> propertiesDTO = new ArrayList<>();
+        for(Property property:properties){
+            Blob photoBlob = property.getPropertyImage();
+            byte[] photoBytes = photoBlob.getBytes(1,(int) photoBlob.length());
+            String base64Photo = Base64.encodeBase64String(photoBytes);
+
+            PropertyDTO propertyDTO = new PropertyDTO(
+                    property.getId(),
+                    property.getRent(),
+                    property.getArea(),
+                    property.getBedrooms(),
+                    property.getBathrooms(),
+                    property.getNearbySpots(),
+                    base64Photo,
+                    property.getOwner(),
+                    property.getAppliedUsers(),
+                    property.getLikedUsers()
+                    );
+
+            propertiesDTO.add(propertyDTO);
+        }
         
-        PropertyPaginatedResponse propertyPaginatedResponse = new PropertyPaginatedResponse(properties,totalPages);
+        PropertyPaginatedResponse propertyPaginatedResponse = new PropertyPaginatedResponse(propertiesDTO,totalPages);
         
         return ResponseEntity.ok(propertyPaginatedResponse);
     }
     
     
-    @GetMapping("/image/{filename:.+}")
-    public ResponseEntity<Resource> getImage(@PathVariable String filename) {
-        try {
-            // Load file as Resource
-            Path filePath = Paths.get(UPLOAD_DIR).resolve(filename).normalize();
-            Resource resource = new UrlResource(filePath.toUri());
-
-            // Check if the file exists
-            if (resource.exists()) {
-                return ResponseEntity.ok()
-                        .contentType(MediaType.IMAGE_PNG) // Change MediaType according to your image type
-                        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + resource.getFilename() + "\"")
-                        .body(resource);
-            } else {
-                return ResponseEntity.notFound().build();
-            }
-        } catch (MalformedURLException ex) {
-            return ResponseEntity.notFound().build();
-        }
-    }
-    
-    
     @GetMapping("/user/{ownerId}")
-    public List<Property> getPropertiesByOwnerId(@PathVariable("ownerId") Integer ownerId) {
-        return propertyRepository.findByOwnerId(ownerId);
+    public List<PropertyDTO> getPropertiesByOwnerId(@PathVariable("ownerId") Integer ownerId) throws SQLException {
+        List<Property> properties = propertyRepository.findByOwnerId(ownerId);
+
+        List<PropertyDTO> propertiesDTO = new ArrayList<>();
+        for(Property property:properties){
+            Blob photoBlob = property.getPropertyImage();
+            byte[] photoBytes = photoBlob.getBytes(1,(int) photoBlob.length());
+            String base64Photo = Base64.encodeBase64String(photoBytes);
+
+            PropertyDTO propertyDTO = new PropertyDTO(
+                    property.getId(),
+                    property.getRent(),
+                    property.getArea(),
+                    property.getBedrooms(),
+                    property.getBathrooms(),
+                    property.getNearbySpots(),
+                    base64Photo,
+                    property.getOwner(),
+                    property.getAppliedUsers(),
+                    property.getLikedUsers()
+            );
+
+            propertiesDTO.add(propertyDTO);
+        }
+
+        return propertiesDTO;
+
     }
     
     

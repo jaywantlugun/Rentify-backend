@@ -21,6 +21,7 @@ import com.jaywant.rentify.service.CustomUserServiceImplementation;
 
 import jakarta.validation.Valid;
 
+@CrossOrigin("http://localhost:3000")
 @RestController
 @RequestMapping("/auth")
 public class AppController {
@@ -37,7 +38,7 @@ public class AppController {
     @Autowired
     private CustomUserServiceImplementation customUserServiceImplementation;
 
-    @CrossOrigin(origins = "http://localhost:3000")
+
     @PostMapping("/signup")
     public ResponseEntity<AuthResponse> createUserHandler(@Valid @RequestBody User user) throws UserException {
         String email = user.getEmail();
@@ -64,7 +65,7 @@ public class AppController {
         return new ResponseEntity<>(authResponse, HttpStatus.CREATED);
     }
 
-    @CrossOrigin(origins = "http://localhost:3000")
+
     @PostMapping("/signin")
     public ResponseEntity<AuthResponse> loginUserHandler(@Valid @RequestBody LoginRequest loginRequest) {
         String email = loginRequest.getEmail();
