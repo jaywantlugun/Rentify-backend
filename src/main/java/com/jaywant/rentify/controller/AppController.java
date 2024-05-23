@@ -63,6 +63,7 @@ public class AppController {
         return new ResponseEntity<>(authResponse, HttpStatus.CREATED);
     }
 
+    @CrossOrigin(origins = "http://localhost:3000")
     @PostMapping("/signin")
     public ResponseEntity<AuthResponse> loginUserHandler(@Valid @RequestBody LoginRequest loginRequest) {
         String email = loginRequest.getEmail();
