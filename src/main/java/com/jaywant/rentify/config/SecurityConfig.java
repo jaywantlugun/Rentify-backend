@@ -30,25 +30,27 @@ public class SecurityConfig {
                 .addFilterBefore(new JwtValidator(), BasicAuthenticationFilter.class)
                 .csrf().disable()
                 .cors()
-                .and()
-                .httpBasic().and().formLogin().and()
-                .headers().frameOptions().sameOrigin();
+                .configurationSource(new CorsConfigurationSource() {
+                    @Override
+                    public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
+
+                        CorsConfiguration cfg = new CorsConfiguration();
+                        cfg.setAllowedOrigins(Arrays.asList(
+                                "http://localhost:3000"
+                        ));
+                        cfg.setAllowedMethods(Collections.singletonList("*"));
+                        cfg.setAllowCredentials(true);
+                        cfg.setAllowedHeaders(Collections.singletonList("*"));
+                        cfg.setExposedHeaders(Arrays.asList("Authorization"));
+                        cfg.setMaxAge(3600L);
+                        return cfg;
+                    }
+
+                })
+                .and().httpBasic().and().formLogin();
+
         return http.build();
-    }
 
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOriginPatterns(Collections.singletonList("*"));
-        configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowCredentials(true);
-        configuration.setAllowedHeaders(Collections.singletonList("*"));
-        configuration.setExposedHeaders(Arrays.asList("Authorization"));
-        configuration.setMaxAge(3600L);
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
     }
 
 
