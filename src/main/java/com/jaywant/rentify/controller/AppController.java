@@ -21,7 +21,7 @@ import com.jaywant.rentify.service.CustomUserServiceImplementation;
 
 import jakarta.validation.Valid;
 
-@CrossOrigin("https://rentify-frontend-theta.vercel.app")
+@CrossOrigin("https://rentify-frontend-git-master-jaywantlugun2000s-projects.vercel.app")
 @RestController
 @RequestMapping("/auth")
 public class AppController {

@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.jaywant.rentify.models.User;
 import com.jaywant.rentify.repository.UserRepository;
 
-@CrossOrigin("https://rentify-frontend-theta.vercel.app")
+@CrossOrigin("https://rentify-frontend-git-master-jaywantlugun2000s-projects.vercel.app")
 @RestController
 public class EmailController {
 
