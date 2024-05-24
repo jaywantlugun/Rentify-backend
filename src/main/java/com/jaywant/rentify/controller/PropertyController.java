@@ -119,14 +119,14 @@ public class PropertyController {
             @RequestParam(value = "pageNo", defaultValue = "0", required = false) Integer pageNo,
             @RequestParam(value = "sortBy", defaultValue = "id", required = false) String sortBy
     ) throws SQLException {
-        Pageable pageable = PageRequest.of(pageNo, 2);
+        Pageable pageable = PageRequest.of(pageNo, 3);
 
         Page<Property> propertiesPage;
         
         if ("likes".equals(sortBy)) {
             propertiesPage = propertyRepository.findAllOrderByLikedUsersSize(pageable);
         } else {
-            pageable = PageRequest.of(pageNo, 2, Sort.by(sortBy));
+            pageable = PageRequest.of(pageNo, 3, Sort.by(sortBy));
             propertiesPage = propertyRepository.findAll(pageable);
         }
 
