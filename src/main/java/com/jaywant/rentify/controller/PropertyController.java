@@ -40,7 +40,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-@CrossOrigin("http://localhost:3000")
+@CrossOrigin("https://rentify-frontend-delta.vercel.app")
 @RestController
 @RequestMapping("/properties")
 public class PropertyController {

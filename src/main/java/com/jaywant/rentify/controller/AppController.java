@@ -21,7 +21,7 @@ import com.jaywant.rentify.service.CustomUserServiceImplementation;
 
 import jakarta.validation.Valid;
 
-@CrossOrigin("http://localhost:3000")
+@CrossOrigin("https://rentify-frontend-delta.vercel.app")
 @RestController
 @RequestMapping("/auth")
 public class AppController {
