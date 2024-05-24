@@ -40,7 +40,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-@CrossOrigin("https://rentify-frontend-git-master-jaywantlugun2000s-projects.vercel.app")
+@CrossOrigin("https://rentify-frontend-theta.vercel.app")
 @RestController
 @RequestMapping("/properties")
 public class PropertyController {

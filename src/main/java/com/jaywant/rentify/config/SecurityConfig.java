@@ -29,7 +29,7 @@ public class SecurityConfig {
                         @Override
                         public CorsConfiguration getCorsConfiguration(HttpServletRequest request) {
                             CorsConfiguration cfg = new CorsConfiguration();
-                            cfg.setAllowedOrigins(Arrays.asList("https://rentify-frontend-git-master-jaywantlugun2000s-projects.vercel.app"));
+                            cfg.setAllowedOrigins(Arrays.asList("https://rentify-frontend-theta.vercel.app"));
                             cfg.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
                             cfg.setAllowCredentials(true);
                             cfg.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type"));
