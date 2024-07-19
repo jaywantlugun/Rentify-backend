@@ -22,8 +22,11 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	developmentOnly 'org.springframework.boot:spring-boot-devtools'
 	//runtimeOnly 'com.h2database:h2'
-	implementation 'mysql:mysql-connector-java:8.0.33'
-	
+	//implementation 'mysql:mysql-connector-java:8.0.33'
+	implementation 'org.postgresql:postgresql:42.7.2'
+
+
+
 	implementation 'org.springframework.boot:spring-boot-starter-mail'
 	
 	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
